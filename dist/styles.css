@@ -108,7 +108,7 @@ legend { padding:0; margin-bottom:var(--s2); }
 .chart td[data-band="high"] { background:var(--heat-3); }
 .chart td strong,.chart td small { display:block; line-height:1.2; }
 .chart td strong { font-size:var(--body); }
-.chart td small { font-size:var(--small); color:var(--muted); margin-top:var(--s1); }
+.chart td small { font-size:var(--small); color:var(--ink); margin-top:var(--s1); }
 .chart-note,#data p { margin-top:var(--s3); color:var(--muted); font-size:var(--label); }
 .source-links { display:flex; flex-wrap:wrap; gap:var(--s2) var(--s5); margin-top:var(--s3); font-size:var(--label); }
 footer { background:var(--white); border-top:1px solid var(--line); }
