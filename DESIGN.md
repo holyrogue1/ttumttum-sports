@@ -1,47 +1,41 @@
-# 틈틈이 시연 웹
+# 틈틈이 디자인 기준
 
-## Atmosphere
+공공체육시설을 이용하려는 사람을 위한 생활체육 서비스. 스포츠 매거진처럼 대담한 활자와 현장감 있는 사진을 쓰고, 신청 판단에 필요한 정보는 밝은 바탕에 읽기 쉽게 배치한다.
 
-A Korean public sports service with an editorial opening, a single working search panel and an evidence-backed schedule. The approved crane welcomes visitors from the right side of the home image. The display should feel like a contemporary recreation-center guide with a warm background and clear data labels.
+## 색상
 
-## Color
-
-| Token | Value | Use |
+| 역할 | 토큰 | 값 |
 | --- | --- | --- |
-| `--paper` | `#F7F8F2` | Hero and page tint |
-| `--white` | `#FFFFFF` | Forms and results |
-| `--ink` | `#182A22` | Main text |
-| `--muted` | `#50635B` | Supporting text |
-| `--line` | `#D5DDD5` | Quiet rules |
-| `--outline` | `#728578` | Control borders |
-| `--pine` | `#164A38` | Primary actions, links and focus |
-| `--deep` | `#0F382C` | Hover and hero block |
-| `--mint` | `#E5EFE5` | Selected and art field |
-| `--lime` | `#D4EAAD` | Hero accent |
-| `--gold` | `#F5E5B6` | Data caveat |
-| `--umber` | `#674B16` | Data caveat text |
-| `--heat-1` | `#EBF2E4` | Lower observed seat availability |
-| `--heat-2` | `#D8E9C9` | Middle observed seat availability |
-| `--heat-3` | `#BAD7A8` | Higher observed seat availability |
+| 페이지 | `--paper` | #F4F5F1 |
+| 카드 | `--white` | #FFFFFF |
+| 글자와 어두운 바탕 | `--ink` | #111817 |
+| 보조 글자 | `--muted` | #48564F |
+| 구분선 | `--line` | #D9DED7 |
+| 컨트롤 테두리 | `--outline` | #76857B |
+| 링크와 포커스 | `--pine` | #164A38 |
+| 어두운 표면의 보조 글자 | `--inverse-muted` | #C6D0C8 |
+| 선택 배경 | `--mint` | #EBF3E6 |
+| 밝은 행동 강조 | `--lime` | #D8F65E |
+| 강조 호버 | `--lime-hover` | #EAFF9A |
+| 확인 안내 | `--gold` | #F7EECF |
+| 확인 안내 글자 | `--umber` | #634916 |
+| 잔여석 색상 | `--heat-1`, `--heat-2`, `--heat-3` | #EDF2E8, #DCEABD, #C9E58A |
 
-## Typography
+## 활자와 간격
 
-Spoqa Han Sans Neo 400 and 700 with Korean system fallback. Hero 60/46/38, section 32/26, card 21, body 16, labels 14, minimum size 13. Tabular digits for times and counts.
+Spoqa Han Sans Neo 400·700. 홈 제목 40~80px, 페이지 제목 32~64px, 섹션 제목 28~40px, 카드 제목 20px. 본문 16px, 보조 14px, 최소 13px. 시각과 잔여석에는 등폭 숫자를 쓴다. 글자 굵기와 줄바꿈을 먼저 조정해 한국어 제목과 선택값이 잘리지 않도록 한다.
 
-## Spacing
+4px 척도 4·8·12·16·20·24·28·32·36·40·44·48·52·56·60·64·68·72·76·80·88·96·112·120·128. 작업 폭 1240px, 바깥 여백 24px와 16px. 헤더 72px과 모바일 56px. 컨트롤 최소 높이 44px. 모서리 8px, 12px, 16px과 원형. 콘텐츠 전환 960px, 720px, 480px.
 
-4px scale (4, 8, 12, 16, 20, 24, 28, 32, 40, 48, 56, 64, 72, 80), container 1200, outer gutters 32/24/16. Radio and select control minimum height 44. Use radii 8, 16 and 24. Desktop and mobile breakpoints 900 and 620.
+## 페이지
 
-## Components
+- 홈은 왼쪽의 짧은 제목과 주요 행동, 오른쪽의 오리지널 수영장 사진을 하나의 판으로 보여준다. 아래에서 강좌, 안내, 잔여석으로 이동한다.
+- 운동 찾기는 동행 유형과 인원, 일정과 강좌 조건만 보여준다. 입력이 끝나면 독립된 결과 페이지로 이동한다.
+- 추천 결과는 적용한 조건, 가능한 강좌와 확인이 필요한 항목을 표시한다. 한 가지 조건을 바꿀 수 있을 때 대안을 제시하며 조건 수정으로 돌아갈 수 있다.
+- 이용 안내는 센터 선택과 공식 자료 검색, 답변 근거와 원문 링크를 제공한다.
+- 잔여석 페이지는 선택한 센터·대상의 표와 조회일을 표시한다. 일곱 요일은 좁은 화면에서도 제공하고 필요한 경우 표 영역 안에서 스크롤한다.
+- 데이터 출처는 확인 기준과 기관 원문, 자료의 한계를 담는다.
 
-Split portrait hero, readable one-sentence lead, one CTA. The first form row uses radio groups for companion type and total attendance. It shows up to six attendance options, with the companion type setting which options are available. A family composition row uses native child-count selects and a text summary. On mobile, these groups stack above weekday, time and center controls. Results display center, actual time, all required days, seat needs and official links. Family cards identify an overlap between gym hours and child swimming. Preschool visits show official eligibility information in the result area. Analytics cells carry percentage and raw numerators, with a clear empty state. Status text accompanies any color. Mobile chart retains all seven weekdays.
+## 움직임과 깊이
 
-Two example searches open the planner with real conditions filled in. Level and optional first visit date retain the existing select and input treatment. When a search returns zero matches, show the blocking condition, then only alternatives that satisfy all the other selected conditions. Include source links in cards and results. A separate official guide search uses matching fonts, borders and controls. The filter rows wrap at 1000px. Mobile center selection has its own full-width row to show the long center name.
-
-## Motion
-
-Immediate state changes and visible focus. No entrance motion or autoplay.
-
-## Depth
-
-Use background color fields, dividers and type sizes. No decorative charts, invented metrics or raised boxes.
+일관된 테두리와 명암으로 묶는다. 선택과 호버는 160ms 이내이며 동작 줄이기 설정을 따른다. 로고, 사진, 아이콘과 동작 버튼은 틈틈이 자체 구성 요소를 쓴다.

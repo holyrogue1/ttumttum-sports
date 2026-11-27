@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F4F5F1">
+  <meta name="description" content="동행 인원과 가능한 시간에 맞는 공공체육센터의 수영 강좌를 찾아보세요.">
+  <title>운동 시간 찾기 | 틈틈이</title>
+  <link rel="icon" href="mascot.webp" type="image/webp">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="inside.css">
+  <script src="data.js" defer></script>
+  <script src="guidance.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="index.html"><span class="brand-symbol" aria-hidden="true"></span>틈틈이</a>
+      <nav class="site-nav" aria-label="주 메뉴">
+        <a href="index.html">홈</a>
+        <a href="find.html" aria-current="page">운동 찾기</a>
+        <a href="guide.html">이용 안내</a>
+        <a href="availability.html">잔여석</a>
+      </nav>
+      <a class="header-utility" href="sources.html">데이터 출처</a>
+    </div>
+  </header>
+  <main id="main" class="wrap inside-main" tabindex="-1">
+    <header class="page-intro">
+      <h1 id="page-title">운동 시간 찾기</h1>
+      <p>동행 인원과 가능한 요일을 골라 함께 갈 수 있는 시간을 찾아보세요.</p>
+    </header>
+    <div class="inside-columns planner-layout">
+      <section class="planner-form" aria-labelledby="filters-title">
+        <h2 id="filters-title">검색 조건</h2>
+        <div class="scenario-actions" role="group" aria-label="추천 조건으로 시작하기">
+          <button class="secondary" type="button" data-scenario="worker">퇴근 후 초급 수영</button>
+          <button class="secondary" type="button" data-scenario="family">아이 수영과 보호자 운동</button>
+        </div>
+        <form id="filters" class="panel" action="results.html" method="get">
+          <div class="visit-party">
+            <fieldset class="field">
+              <legend>동행 유형</legend>
+              <div class="segments group-options">
+                <label><input type="radio" name="group" value="adult" checked><span>성인</span></label>
+                <label><input type="radio" name="group" value="couple"><span>부부</span></label>
+                <label><input type="radio" name="group" value="family"><span>가족</span></label>
+                <label><input type="radio" name="group" value="toddler"><span>보호자·유아</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="field" id="party-size" aria-describedby="party-note">
+              <legend>총 인원</legend>
+              <div class="segments party-options">
+                <label><input type="radio" name="party" value="1" checked><span>1명</span></label>
+                <label><input type="radio" name="party" value="2"><span>2명</span></label>
+                <label><input type="radio" name="party" value="3"><span>3명</span></label>
+                <label><input type="radio" name="party" value="4"><span>4명</span></label>
+                <label><input type="radio" name="party" value="5"><span>5명</span></label>
+                <label><input type="radio" name="party" value="6"><span>6명</span></label>
+              </div>
+            </fieldset>
+            <div id="party-composition" class="party-composition" hidden>
+              <label class="select-field" id="children-field">어린이 인원
+                <select id="children" name="children"><option value="0">0명</option></select>
+              </label>
+              <label class="select-field" id="toddlers-field">유아 인원
+                <select id="toddlers" name="toddlers"><option value="0">0명</option></select>
+              </label>
+            </div>
+            <p id="party-summary" class="party-summary" role="status"></p>
+            <p id="party-note" class="party-note"></p>
+          </div>
+          <fieldset class="field weekdays" aria-describedby="day-error">
+            <legend>가능한 요일</legend>
+            <div class="segments day-options">
+              <label><input type="checkbox" name="day" value="월"><span>월</span></label>
+              <label><input type="checkbox" name="day" value="화" checked><span>화</span></label>
+              <label><input type="checkbox" name="day" value="수"><span>수</span></label>
+              <label><input type="checkbox" name="day" value="목" checked><span>목</span></label>
+              <label><input type="checkbox" name="day" value="금"><span>금</span></label>
+              <label><input type="checkbox" name="day" value="토"><span>토</span></label>
+              <label><input type="checkbox" name="day" value="일"><span>일</span></label>
+            </div>
+          </fieldset>
+          <p class="field-error" id="day-error" role="alert" hidden>참석 가능한 요일을 하나 이상 선택해 주세요.</p>
+          <label class="select-field">시작 시간대
+            <select id="time" name="time">
+              <option value="">모든 시간대</option><option value="morning" selected>오전 (12시 전)</option>
+              <option value="afternoon">오후 (12~18시)</option><option value="evening">저녁 (18시부터)</option>
+            </select>
+          </label>
+          <label class="select-field">수영 수준
+            <select id="level" name="level">
+              <option value="">모든 수준</option><option value="beginner">입문(신기초)</option><option value="basic">기초</option><option value="elementary">초급</option><option value="intermediate">중급</option><option value="advanced">상급·고급</option><option value="training">연수·교정</option>
+            </select>
+          </label>
+          <label class="select-field center-field">스포츠센터
+            <select id="center" name="center"><option value="">두 센터 모두</option><option value="olympic">올림픽수영장</option><option value="ilsan">일산올림픽스포츠센터</option></select>
+          </label>
+          <label class="select-field date-field">방문 날짜 (12월, 선택)
+            <input type="date" id="visit-date" name="date" min="2026-12-01" max="2026-12-31">
+          </label>
+          <button class="primary" type="submit">가능한 시간 보기</button>
+        </form>
+        <noscript><p class="result-note">강좌 검색은 브라우저에서 JavaScript를 켜면 사용할 수 있습니다.</p></noscript>
+      </section>
+      <aside class="info-panel" aria-labelledby="search-help">
+        <h2 id="search-help">방문 전 확인</h2>
+        <dl>
+          <dt>월 강습</dt>
+          <dd>참석할 수 있는 요일에 강좌의 모든 필수 수업 요일이 포함되어야 합니다.</dd>
+          <dt>방문 날짜</dt>
+          <dd>12월 날짜를 고르면 확인된 휴관일과 공휴일 운영 안내도 반영합니다.</dd>
+        </dl>
+        <a href="guide.html">센터별 이용 안내 찾기</a>
+      </aside>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <a class="brand" href="index.html"><span class="brand-symbol" aria-hidden="true"></span>틈틈이</a>
+      <p>공공체육시설 수영 강좌 시연</p>
+      <a href="sources.html">데이터 출처와 확인 기준</a>
+    </div>
+  </footer>
+</body>
+</html>

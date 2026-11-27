@@ -3,162 +3,83 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#F7F8F2">
-  <meta name="description" content="동행 유형과 인원에 맞춰 공공체육시설의 운동 시간과 잔여석을 확인하는 틈틈이 시연 웹">
-  <title>틈틈이 | 함께 운동하는 시간</title>
+  <meta name="theme-color" content="#F4F5F1">
+  <meta name="description" content="내 일정과 함께 갈 사람에 맞는 공공체육시설 수영 강좌를 찾고, 센터별 이용 조건과 잔여석을 확인하세요.">
+  <title>틈틈이 | 함께 운동할 시간</title>
   <link rel="icon" href="mascot.webp" type="image/webp">
   <link rel="stylesheet" href="styles.css">
-  <script src="data.js" defer></script>
-  <script src="guidance.js" defer></script>
-  <script src="app.js" defer></script>
+  <script>
+    const previousSections = new Map([
+      ["#find", "find.html"], ["#guidance", "guide.html"],
+      ["#seats", "availability.html"], ["#data", "sources.html"],
+    ]);
+    if (previousSections.has(location.hash)) location.replace(previousSections.get(location.hash));
+  </script>
 </head>
 <body>
-  <a class="skip" href="#find">운동 시간 찾기로 건너뛰기</a>
-  <header class="header">
-    <div class="wrap header-inner">
-      <a class="wordmark" href="#top"><span class="mark" aria-hidden="true"></span>틈틈이</a>
-      <nav aria-label="주 메뉴"><a href="#find">시간 찾기</a><a href="#guidance">이용 안내</a><a href="#seats">잔여석 지도</a><a href="#data">데이터 출처</a></nav>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="index.html"><span class="brand-symbol" aria-hidden="true"></span>틈틈이</a>
+      <nav class="site-nav" aria-label="주 메뉴">
+        <a href="index.html" aria-current="page">홈</a><a href="find.html">운동 찾기</a>
+        <a href="guide.html">이용 안내</a><a href="availability.html">잔여석</a>
+      </nav>
+      <a class="header-utility" href="sources.html">데이터 출처</a>
     </div>
   </header>
-  <main id="top">
-    <section class="wrap hero" aria-labelledby="title">
-      <div class="hero-copy">
-        <h1 id="title">함께 운동할<br>시간을 찾아요</h1>
-        <p>혼자 가는 날도, 가족과 가는 날도.<br>공공체육센터의 운동 시간과 잔여석을 확인하세요.</p>
-        <a class="primary" href="#find">운동 시간 찾기 <span aria-hidden="true">↗</span></a>
+
+  <main id="main" class="wrap home" tabindex="-1">
+    <section class="sport-hero" aria-labelledby="hero-title">
+      <div class="sport-hero-copy">
+        <h1 id="hero-title">운동할 시간,<br><span>함께 찾아요.</span></h1>
+        <p>나와 가족의 일정에 맞는 수영 강좌를 찾고, 신청 전에 알아둘 조건을 확인하세요.</p>
+        <a class="primary hero-action" href="find.html">운동 시간 찾기 <span aria-hidden="true">↗</span></a>
       </div>
-      <div class="hero-art">
-        <img src="mascot.webp" width="480" height="720" fetchpriority="high" alt="청록색 재킷을 입고 산책하는 두루미 마스코트 틈틈이">
+      <div class="sport-hero-photo">
+        <picture>
+          <source media="(max-width: 720px)" srcset="pool-editorial-mobile.webp">
+          <img src="pool-editorial.webp" width="1440" height="960" fetchpriority="high" alt="실내 수영장에서 레인 옆에 잠시 쉬는 생활체육 수영인">
+        </picture>
       </div>
     </section>
-    <div class="wrap content">
-      <section id="find" aria-labelledby="find-title">
-        <div class="section-heading"><h2 id="find-title">운동 시간 찾기</h2><p>참석할 수 있는 모든 요일을 고르세요.</p></div>
-        <div class="scenario-actions" role="group" aria-label="추천 조건으로 시작하기">
-          <button class="secondary" type="button" data-scenario="worker">퇴근 후 초급 수영</button>
-          <button class="secondary" type="button" data-scenario="family">아이 수영과 보호자 운동</button>
-        </div>
-        <form id="filters" class="panel">
-          <div class="visit-party">
-            <fieldset class="field">
-              <legend>동행 유형</legend>
-              <div class="segments group-options">
-                <label><input type="radio" name="group" value="adult" checked><span>성인</span></label>
-                <label><input type="radio" name="group" value="couple"><span>부부</span></label>
-                <label><input type="radio" name="group" value="family"><span>가족</span></label>
-                <label><input type="radio" name="group" value="toddler"><span>보호자·유아</span></label>
-              </div>
-            </fieldset>
-            <fieldset class="field" id="party-size" aria-describedby="party-note">
-              <legend>총 인원</legend>
-              <div class="segments party-options">
-                <label><input type="radio" name="party" value="1" checked><span>1명</span></label>
-                <label><input type="radio" name="party" value="2"><span>2명</span></label>
-                <label><input type="radio" name="party" value="3"><span>3명</span></label>
-                <label><input type="radio" name="party" value="4"><span>4명</span></label>
-                <label><input type="radio" name="party" value="5"><span>5명</span></label>
-                <label><input type="radio" name="party" value="6"><span>6명</span></label>
-              </div>
-            </fieldset>
-            <div id="party-composition" class="party-composition" hidden>
-              <label class="select-field" id="children-field">어린이 인원
-                <select id="children" name="children"><option value="0">0명</option></select>
-              </label>
-              <label class="select-field" id="toddlers-field">유아 인원
-                <select id="toddlers" name="toddlers"><option value="0">0명</option></select>
-              </label>
-            </div>
-            <p id="party-summary" class="party-summary" role="status"></p>
-            <p id="party-note" class="party-note"></p>
-          </div>
-          <fieldset class="field weekdays" aria-describedby="day-error">
-            <legend>가능한 요일</legend>
-            <div class="segments day-options">
-              <label><input type="checkbox" name="day" value="월"><span>월</span></label>
-              <label><input type="checkbox" name="day" value="화" checked><span>화</span></label>
-              <label><input type="checkbox" name="day" value="수"><span>수</span></label>
-              <label><input type="checkbox" name="day" value="목" checked><span>목</span></label>
-              <label><input type="checkbox" name="day" value="금"><span>금</span></label>
-              <label><input type="checkbox" name="day" value="토"><span>토</span></label>
-              <label><input type="checkbox" name="day" value="일"><span>일</span></label>
-            </div>
-          </fieldset>
-          <label class="select-field">시작 시간대
-            <select id="time" name="time">
-              <option value="">모든 시간대</option><option value="morning" selected>오전 (12시 전)</option>
-              <option value="afternoon">오후 (12~18시)</option><option value="evening">저녁 (18시부터)</option>
-            </select>
-          </label>
-          <label class="select-field">수영 수준
-            <select id="level" name="level">
-              <option value="">모든 수준</option><option value="beginner">입문(신기초)</option><option value="basic">기초</option><option value="elementary">초급</option><option value="intermediate">중급</option><option value="advanced">상급·고급</option><option value="training">연수·교정</option>
-            </select>
-          </label>
-          <label class="select-field center-field">스포츠센터
-            <select id="center" name="center"><option value="">두 센터 모두</option><option value="olympic">올림픽수영장</option><option value="ilsan">일산올림픽스포츠센터</option></select>
-          </label>
-          <label class="select-field date-field">방문 날짜 (12월)
-            <input type="date" id="visit-date" name="date" min="2026-12-01" max="2026-12-31">
-          </label>
-          <button class="primary" type="submit">가능한 시간 보기</button>
-          <p class="field-error" id="day-error" role="alert" hidden>참석 가능한 요일을 하나 이상 선택해 주세요.</p>
-        </form>
-        <noscript><p>시간 검색과 잔여석 지도는 브라우저에서 JavaScript를 켜면 사용할 수 있습니다.</p></noscript>
-        <div class="result-heading" id="results-heading">
-          <div><h3 tabindex="-1" id="matches-title">조건에 맞는 시간</h3><p id="match-count" role="status"></p></div>
-          <p class="data-date">2026년 11월 25일 조회 · 12월 수강 기준</p>
-        </div>
-        <div class="result-grid" id="results" aria-busy="true"></div>
-      </section>
-      <section id="guidance" aria-labelledby="guide-title">
-        <div class="section-heading">
-          <h2 id="guide-title">공식 이용 안내 찾기</h2>
-          <p>등록 절차, 휴관일, 보호자 동반 기준을 확인하세요.</p>
-        </div>
-        <div class="panel">
-          <form id="guide-form">
-            <label class="select-field" for="guide-query">찾고 싶은 이용 안내
-              <input type="search" id="guide-query" name="query" maxlength="160" required placeholder="예: 일산 초등생 수영 등록">
-            </label>
-            <button class="primary" type="submit">안내 검색</button>
-            <div class="guide-suggestions" role="group" aria-label="추천 검색어">
-              <button class="secondary" type="button" data-guide-query="일산 초등생 수영 등록">일산 초등생 수영 등록</button>
-              <button class="secondary" type="button" data-guide-query="올림픽수영장 12월 휴관">올림픽수영장 12월 휴관</button>
-              <button class="secondary" type="button" data-guide-query="보호자와 유아 자유수영">보호자와 유아 자유수영</button>
-            </div>
-          </form>
-          <div class="guide-results" id="guide-results" aria-live="polite"></div>
-        </div>
-      </section>
-      <section id="seats" aria-labelledby="seat-title">
-        <div class="section-heading">
-          <h2 id="seat-title">시간대별 잔여석 지도</h2>
-          <p>두 센터의 수영 강좌를 지정 요일과 시작 시간대로 살펴보세요.</p>
-        </div>
-        <div class="panel chart-panel">
-          <div class="chart-tools">
-            <label class="select-field">스포츠센터<select id="chart-center"><option value="olympic">올림픽수영장</option><option value="ilsan">일산올림픽스포츠센터</option></select></label>
-            <label class="select-field">수강 대상<select id="chart-audience"><option value="all">전체 강좌</option><option value="adult">성인 수영</option><option value="child">어린이 수영</option></select></label>
-          </div>
-          <p id="chart-status" class="sr-only" role="status"></p>
-          <div id="chart" class="chart"></div>
-          <p class="chart-note">2026년 11월 25일 확인한 12월 수영 강좌 21건 기준입니다. 각 칸은 잔여석 비율과 잔여석/정원을 보여줍니다. 요일별 강좌 정원이므로 현장 혼잡도 판단에는 출입 기록이 별도로 필요합니다.</p>
-        </div>
-      </section>
-      <section id="data" aria-labelledby="data-title">
-        <h2 id="data-title">데이터 출처</h2>
-        <p>공개 강좌 CSV로 센터와 수영 프로그램을 식별했습니다. 공식 등록현황에서 정원·등록 가능 인원을 확인하고, 프로그램 안내에서 필수 강습 요일을 대조했습니다. 방문 전 공식 홈페이지에서 최신 정보를 확인하세요.</p>
-        <div class="source-links">
-          <a href="https://www.data.go.kr/data/15147992/fileData.do">스포츠센터 강좌 정보 CSV</a>
-          <a href="https://www.ksponco.or.kr/spm/reservationStatus/waitList.do?scId=6&amp;itemCode=040">올림픽수영장 등록현황</a>
-          <a href="https://www.ksponco.or.kr/spm/reservationStatus/waitList.do?scId=5&amp;itemCode=040">일산올림픽스포츠센터 등록현황</a>
-          <a href="https://www.ksponco.or.kr/menu.es?mid=a50204000000">올림픽수영장 일일 헬스</a>
-          <a href="https://www.ksponco.or.kr/menu.es?mid=a50203000000">올림픽수영장 자유수영 안내</a>
-          <a href="https://www.ksponco.or.kr/sports/courses/141?mid=a90101000000">일산올림픽스포츠센터 자유수영 안내</a>
-        </div>
-      </section>
-    </div>
+
+    <section class="home-directory" aria-labelledby="directory-title">
+      <div class="section-line"><h2 id="directory-title">어떤 정보를 찾으세요?</h2></div>
+      <div class="home-entry-grid">
+        <a class="home-entry home-entry-main" href="find.html">
+          <h3>내 조건에 맞는 강좌</h3>
+          <p>가능한 요일, 수영 수준과 동행 인원으로 찾기</p>
+          <span aria-hidden="true">↗</span>
+        </a>
+        <a class="home-entry" href="guide.html">
+          <h3>공식 이용 안내</h3>
+          <p>자녀 등록, 보호자 동반과 휴관 확인하기</p>
+          <span aria-hidden="true">↗</span>
+        </a>
+        <a class="home-entry" href="availability.html">
+          <h3>시간대별 잔여석</h3>
+          <p>센터별·요일별 수영 강좌 잔여석 비교하기</p>
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="home-starters" aria-labelledby="starters-title">
+      <div class="starter-heading"><h2 id="starters-title">내 일정으로 시작하기</h2></div>
+      <div class="starter-links">
+        <a href="find.html?scenario=worker"><strong>퇴근 후 초급 수영</strong><span aria-hidden="true">↗</span></a>
+        <a href="find.html?scenario=family"><strong>아이 수영과 보호자 운동</strong><span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
   </main>
-  <footer><div class="wrap footer-inner"><strong>틈틈이</strong><span>한국체육산업개발 공공데이터 활용 경진대회 시연</span></div></footer>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <a class="brand" href="index.html"><span class="brand-symbol" aria-hidden="true"></span>틈틈이</a>
+      <p>공공체육시설 수영 강좌 시연</p>
+      <a href="sources.html">데이터 출처와 확인 기준</a>
+    </div>
+  </footer>
 </body>
 </html>

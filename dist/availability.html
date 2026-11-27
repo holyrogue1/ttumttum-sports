@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F4F5F1">
+  <meta name="description" content="두 스포츠센터의 12월 수영 강좌를 요일과 시간대별 잔여석으로 비교하세요.">
+  <title>시간대별 잔여석 | 틈틈이</title>
+  <link rel="icon" href="mascot.webp" type="image/webp">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="inside.css">
+  <script src="data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="index.html"><span class="brand-symbol" aria-hidden="true"></span>틈틈이</a>
+      <nav class="site-nav" aria-label="주 메뉴">
+        <a href="index.html">홈</a>
+        <a href="find.html">운동 찾기</a>
+        <a href="guide.html">이용 안내</a>
+        <a href="availability.html" aria-current="page">잔여석</a>
+      </nav>
+      <a class="header-utility" href="sources.html">데이터 출처</a>
+    </div>
+  </header>
+  <main id="main" class="wrap inside-main" tabindex="-1">
+    <header class="page-intro">
+      <h1 id="seat-title">시간대별 잔여석</h1>
+      <p>센터와 수강 대상을 골라 요일별 강좌의 잔여석을 확인하세요.</p>
+    </header>
+    <section class="panel chart-panel" aria-labelledby="chart-title">
+      <div class="section-heading">
+        <h2 id="chart-title">요일과 시작 시간대</h2>
+        <p class="data-date">2026년 11월 25일 조회 · 12월 수강 기준</p>
+      </div>
+      <div class="chart-tools">
+        <label class="select-field">스포츠센터<select id="chart-center"><option value="olympic">올림픽수영장</option><option value="ilsan">일산올림픽스포츠센터</option></select></label>
+        <label class="select-field">수강 대상<select id="chart-audience"><option value="all">전체 강좌</option><option value="adult">성인 수영</option><option value="child">어린이 수영</option></select></label>
+      </div>
+      <p id="chart-status" class="sr-only" role="status"></p>
+      <div id="chart" class="chart" tabindex="0" role="region" aria-label="요일과 시간대별 잔여석 표"></div>
+      <p class="chart-note">공개 등록현황에서 확인한 수영 강좌 21건을 기준으로, 각 칸에 잔여석 비율과 잔여석/정원을 표시합니다. 여러 요일에 열리는 강좌는 해당 요일에 각각 표시됩니다. 현장 혼잡도는 별도의 출입 기록이 필요합니다.</p>
+      <noscript><p class="result-note">잔여석 표는 브라우저에서 JavaScript를 켜면 볼 수 있습니다.</p></noscript>
+    </section>
+    <div class="next-step">
+      <p>조회 이후 등록현황이 달라질 수 있습니다.</p>
+      <a class="secondary" href="sources.html">공식 등록현황 확인</a>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <a class="brand" href="index.html"><span class="brand-symbol" aria-hidden="true"></span>틈틈이</a>
+      <p>공공체육시설 수영 강좌 시연</p>
+      <a href="sources.html">데이터 출처와 확인 기준</a>
+    </div>
+  </footer>
+</body>
+</html>

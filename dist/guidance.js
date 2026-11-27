@@ -99,53 +99,147 @@ const TT_GUIDANCE = (() => {
     ["ilsan:2026-12-25", { dayEntryOpen: null, docId: "ilsan-public-holiday" }],
   ]);
 
-  function topicScores(query) {
-    const child = /아동|유아|미취학|초등|자녀|어린이|아이|[0-9]+개월|[0-9]+살|140cm/.test(query);
-    const guardian = /보호자|부모|엄마|아빠|동성/.test(query);
-    const account = /계정|아이디|가입|인증|휴대폰|핸드폰|명의|미성년/.test(query);
-    const registration = /신규|기초반|초보반|처음배우|처음시작|재등록|접수|등록(?!가능인원|현황)|신청|결원보충/.test(query);
-    const childAccount = (child || guardian) && (account || registration);
-    const childEntry = (child || guardian) && /입장|동성|동반|자유수영|탈의실|들어|데려|가능|[0-9]+개월|140cm/.test(query);
-    const year = query.match(/20\d{2}/)?.[0];
-    const knownYear = !year || year === "2026";
-    const month = query.match(/(\d{1,2})월/)?.[1];
-    const exactDate = query.match(/(?:20\d{2}[./-])?(\d{1,2})[./-](\d{1,2})(?!\d)|([0-9]{1,2})월([0-9]{1,2})일/);
-    const day = exactDate && Number(exactDate[2] ?? exactDate[4]);
-    const holidayDate = !exactDate || (Number(exactDate[1] ?? exactDate[3]) === 12 && [13, 25].includes(day));
-    const holiday = knownYear && (!month || Number(month) === 12) && holidayDate &&
-      /(?:12[./-](?:13|25)|12월(?:13|25)|성탄|크리스마스|공휴일|휴관|휴무|쉬나요|둘째일요일|둘째주일요일|두번째일요일|christmas)/.test(query);
-    const regularClosure = /정기휴관|둘째일요일|둘째주일요일|두번째일요일/.test(query);
-    const namedHoliday = /성탄|크리스마스|공휴일|christmas/.test(query);
-    const laneRental = /레인대여|레인예약/.test(query) && /취소|환불|미이용|노쇼|대여/.test(query);
-    const lanes = knownYear && (!month || Number(month) === 11) && /레인|강사배치/.test(query) && !laneRental;
-    const availability = /잔여|빈자리|남은자리|남은인원|등록가능인원|자리남|정원|실시간등록|혼잡|노쇼|결석/.test(query);
+  const normalize = (value) => value.normalize("NFKC").toLowerCase().replace(/\s+/g, "");
+  const centerNames = { olympic: "올림픽수영장", ilsan: "일산올림픽스포츠센터" };
+  const terms = {
+    child: /아동|유아|미취학|초등|자녀|어린이|아이(?!디)|[0-9]+개월|[0-9]+살|140cm/,
+    guardian: /보호자|부모|엄마|아빠|동성/,
+    account: /계정|아이디|가입|인증|휴대폰|핸드폰|휴대전화|명의|미성년/,
+    registration: /신규|기초반|초보반|처음배우|처음시작|재등록|접수|등록(?!가능인원|현황)|신청|결원보충/,
+    entry: /입장|동성|동반|자유수영|탈의실|들어|데려|[0-9]+개월|140cm/,
+    hours: /운영|이용시간|몇시|열어요|여나요|개장/,
+    holiday: /성탄|크리스마스|공휴일|christmas/,
+    closure: /휴관|휴무|쉬나요|둘째(?:주)?일요일|두번째일요일/,
+    lesson: /강습|수업|레슨/,
+    lanes: /레인|강사배치/,
+    rental: /레인(?:을|를)?(?:대여|예약|빌)/,
+    refund: /취소|환불|미이용|노쇼|불참/,
+    availability: /잔여|빈자리|남은자리|남은인원|등록가능인원|자리남|정원|실시간등록/,
+    attendance: /혼잡|붐비|방문인원|실제이용|출석|출입인원|결석|노쇼|사람이?많/,
+  };
 
-    return {
-      childAccount: childAccount ? 12 : 0,
-      childEntry: childEntry && !childAccount ? 11 : 0,
-      childSafety: childEntry && !childAccount ? 8 : 0,
-      holiday: holiday ? 13 : 0,
-      publicHoliday: holiday && day !== 13 && (!regularClosure || day === 25) ? 13 : 0,
-      regularClosure: holiday && day !== 25 && (!namedHoliday || day === 13) ? 13 : 0,
-      registration: registration && !childAccount && !laneRental ? 7 : 0,
-      lanes: lanes ? 8 : 0,
-      availability: availability && !laneRental ? 9 : 0,
-      laneRental: laneRental ? 12 : 0,
-    };
+  function conceptSet(text) {
+    return new Set(Object.entries(terms).filter(([, expression]) => expression.test(text)).map(([concept]) => concept));
+  }
+
+  const index = records.map((record) => ({
+    record,
+    title: conceptSet(normalize(record.title)),
+    content: conceptSet(normalize(record.body)),
+  }));
+  const documentFrequency = new Map(Object.keys(terms).map((term) => [term,
+    index.filter(({ title, content }) => title.has(term) || content.has(term)).length,
+  ]));
+
+  function queryConditions(query, center) {
+    const queryText = normalize(query);
+    const concepts = conceptSet(queryText);
+    const mentionsOlympic = /올림픽수영장|올팍수영장|송파|방이동/.test(queryText.replace(/일산올림픽수영장/g, "일산"));
+    const mentionsIlsan = /일산|고양/.test(queryText);
+    const selected = Object.hasOwn(centerNames, center) ? center : "";
+    const scope = mentionsOlympic !== mentionsIlsan ? (mentionsOlympic ? "olympic" : "ilsan") : selected;
+    const year = queryText.match(/20\d{2}/)?.[0];
+    const date = queryText.match(/(?:20\d{2}[./-])?(\d{1,2})[./-](\d{1,2})(?!\d)|([0-9]{1,2})월([0-9]{1,2})일/);
+    const month = date ? Number(date[1] ?? date[3]) : Number(queryText.match(/(\d{1,2})월/)?.[1] ?? 0);
+    const day = date ? Number(date[2] ?? date[4]) : 0;
+    const namedChristmas = /성탄|크리스마스|christmas/.test(queryText);
+    const regularClosure = /정기휴관|둘째(?:주)?일요일|두번째일요일/.test(queryText);
+    const age = queryText.match(/(\d{1,3})개월|(?:만)?(\d{1,2})(?:세|살)/);
+    const childAge = age ? Number(age[1] ?? age[2]) * (age[1] ? 1 : 12) : null;
+    const preschool = /미취학/.test(queryText) || (childAge !== null && childAge < 60);
+    const dateSpecific = date || namedChristmas;
+    const target = dateSpecific ? `${year ?? "2026"}-${String(month || 12).padStart(2, "0")}-${String(day || 25).padStart(2, "0")}` : "";
+    return { concepts, scope, year, month, day, regularClosure, target, childAge, preschool };
+  }
+
+  function eligibleTopics({ concepts, year, month, day, regularClosure, target }) {
+    const has = (...options) => options.some((value) => concepts.has(value));
+    const child = has("child", "guardian");
+    const childAccount = child && (has("account") || (has("registration") && !has("entry")));
+    const childEntry = child && has("entry") && !childAccount;
+    const rental = has("rental");
+    const availability = has("availability", "attendance") && !rental;
+    const publicHoliday = has("holiday");
+    const holiday = (!year || year === "2026") && (!month || month === 12) &&
+      (!day || day === 13 || day === 25) && (has("holiday", "closure") || Boolean(target));
+    const topics = new Map();
+    if (childAccount) topics.set("childAccount", 12);
+    if (childEntry) {
+      topics.set("childEntry", 12);
+      topics.set("childSafety", 8);
+    }
+    if (holiday) {
+      topics.set("holiday", 13);
+      if (day !== 13 && (!regularClosure || day === 25)) topics.set("publicHoliday", 13);
+      if (day !== 25 && !target.endsWith("-12-25") && (!publicHoliday || day === 13)) topics.set("regularClosure", 13);
+    }
+    if (availability) topics.set("availability", 9);
+    if (has("registration") && !childAccount && !rental) topics.set("registration", 7);
+    if (has("lanes") && !rental && (!year || year === "2026") && (!month || month === 11)) topics.set("lanes", 8);
+    if (rental) topics.set("laneRental", 12);
+    return topics;
+  }
+
+  function retrieve(conditions) {
+    const topics = eligibleTopics(conditions);
+    const ranked = index.flatMap(({ record, title, content }) => {
+      if ((conditions.scope && conditions.scope !== record.center) || !topics.has(record.topic)) return [];
+      let relevance = topics.get(record.topic);
+      for (const term of conditions.concepts) {
+        const matches = Number(title.has(term)) * 2 + Number(content.has(term));
+        const rarity = Math.log1p(index.length / (1 + documentFrequency.get(term)));
+        relevance += matches * rarity;
+      }
+      return [{ record, relevance }];
+    });
+    return ranked.sort((a, b) => b.relevance - a.relevance).map(({ record }) => record);
   }
 
   function find(query, center) {
     if (typeof query !== "string") return [];
-    const normalized = query.normalize("NFKC").toLowerCase().replace(/\s+/g, "");
-    const mentionsOlympic = /올림픽수영장|올팍수영장|송파|방이동/.test(normalized.replace(/일산올림픽수영장/g, "일산"));
-    const mentionsIlsan = /일산|고양/.test(normalized);
-    const fallback = ["olympic", "ilsan"].includes(center) ? center : "";
-    const scope = mentionsOlympic !== mentionsIlsan ? (mentionsOlympic ? "olympic" : "ilsan") : fallback;
-    const scores = topicScores(normalized);
-    return records.filter((record) => (!scope || record.center === scope) && scores[record.topic] > 0)
-      .sort((a, b) => scores[b.topic] - scores[a.topic])
-      .slice(0, 3)
-      .map((record) => byId.get(record.id));
+    return retrieve(queryConditions(query, center)).slice(0, 3).map(({ id }) => byId.get(id));
+  }
+
+  function holidayAnswer(record, target) {
+    const status = exception(record.center, target);
+    if (status?.docId !== record.id) return null;
+    if (record.id === "olympic-holiday") {
+      return status.dayEntryOpen
+        ? "2026년 12월 25일에는 강습이 쉽니다. 유료 일일 자유수영은 09:00~12:50과 14:00~17:50에 이용할 수 있습니다."
+        : "2026년 12월 13일은 정기휴관일입니다. 강습과 일일입장이 모두 운영되지 않습니다.";
+    }
+    return record.body;
+  }
+
+  function answer(query, center) {
+    if (typeof query !== "string" || !query.trim()) return { state: "empty", items: [] };
+    const conditions = queryConditions(query, center);
+    const retrieved = retrieve(conditions);
+    const named = centerNames[conditions.scope];
+    if (!retrieved.length) return { state: "unknown", center: named, items: [] };
+
+    const best = retrieved.slice(0, 3);
+    const hasIlsanEntry = best.some(({ id }) => id === "ilsan-toddler");
+    const items = best.flatMap((record) => {
+      if (hasIlsanEntry && record.id === "ilsan-swim-safety") return [];
+      const sources = [byId.get(record.id)];
+      const olympicPreschool = record.id === "olympic-toddler" && conditions.preschool;
+      const ilsanUnder36 = record.id === "ilsan-toddler" && conditions.childAge !== null && conditions.childAge < 36;
+      const compare = record.id === "ilsan-toddler" && !ilsanUnder36;
+      if (compare) sources.push(byId.get("ilsan-swim-safety"));
+      const checkCenter = compare || record.id === "ilsan-public-holiday" || (record.id === "olympic-toddler" && !olympicPreschool);
+      let text = holidayAnswer(record, conditions.target) ?? record.body;
+      if (olympicPreschool) text = "올림픽수영장 일일 자유수영은 초등학생부터 이용할 수 있습니다. 보호자 동반 예외는 취학한 어린이 중 키 140cm 미만인 경우에 적용됩니다.";
+      if (ilsanUnder36) text = "일산센터 일일입장 안내의 유아 자유수영 최소 기준은 36개월입니다. 36개월 미만은 이 기준을 충족하지 않습니다.";
+      return [{
+        title: record.title,
+        center: centerNames[record.center],
+        text,
+        status: checkCenter ? "센터 확인" : "",
+        sources,
+      }];
+    });
+    return { state: "answered", center: named, items };
   }
 
   function exception(center, isoDate) {
@@ -153,5 +247,5 @@ const TT_GUIDANCE = (() => {
     return entry ? { lessonsClosed: true, ...entry } : null;
   }
 
-  return Object.freeze({ find, get: (id) => byId.get(id) ?? null, exception });
+  return Object.freeze({ find, answer, get: (id) => byId.get(id) ?? null, exception });
 })();

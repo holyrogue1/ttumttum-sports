@@ -6,15 +6,14 @@ const status = document.querySelector("#match-count");
 const dayError = document.querySelector("#day-error");
 const chartCenter = document.querySelector("#chart-center");
 const chartAudience = document.querySelector("#chart-audience");
-const partyInputs = [...form.querySelectorAll('[name="party"]')];
+const partyInputs = [...document.querySelectorAll('#filters [name="party"]')];
 const childCount = document.querySelector("#children");
 const toddlerCount = document.querySelector("#toddlers");
 const partySummary = document.querySelector("#party-summary");
 const partyNote = document.querySelector("#party-note");
 const visitDate = document.querySelector("#visit-date");
-const guideForm = document.querySelector("#guide-form");
-const guideQuery = document.querySelector("#guide-query");
-const guideResults = document.querySelector("#guide-results");
+const criteria = document.querySelector("#criteria-summary");
+const editCriteria = document.querySelector("#edit-criteria");
 const dayLabels = [..."월화수목금토일"];
 const courseLevels = {
   beginner: /신기초|초보|입문/,
@@ -31,6 +30,12 @@ const timeBands = [
 ];
 const centers = new Map(TT_DATA.centers.map(center => [center.id, center]));
 const money = new Intl.NumberFormat("ko-KR");
+const groupLabels = { adult: "성인", couple: "부부", family: "가족", toddler: "보호자·유아" };
+const levelLabels = { beginner: "입문", basic: "기초", elementary: "초급", intermediate: "중급", advanced: "상급·고급", training: "연수·교정" };
+const [, snapshotYear, snapshotMonth] = TT_DATA.month.match(/^(\d{4})년\s*(\d{1,2})월$/);
+const monthPrefix = snapshotYear + "-" + snapshotMonth.padStart(2, "0");
+const firstVisit = monthPrefix + "-01";
+const lastVisit = new Date(Date.UTC(Number(snapshotYear), Number(snapshotMonth), 0)).toISOString().slice(0, 10);
 
 function element(tag, className, copy) {
   const node = document.createElement(tag);
@@ -45,13 +50,63 @@ function link(copy, url) {
   return node;
 }
 
-function preferences() {
-  const values = new FormData(form);
-  return {
-    party: Number(values.get("party")), children: Number(values.get("children")), toddlers: Number(values.get("toddlers")),
-    days: values.getAll("day"), time: values.get("time"), center: values.get("center"),
-    level: values.get("level"), date: values.get("date"),
-  };
+function partyRange(group) {
+  return { minimum: group === "adult" ? 1 : 2, maximum: group === "couple" ? 2 : 6 };
+}
+
+function count(value, fallback) {
+  if (value === null) return fallback;
+  return /^[0-6]$/.test(value) ? Number(value) : NaN;
+}
+
+function normalizeDays(days) {
+  return dayLabels.filter(day => days.includes(day));
+}
+
+function validVisitDate(date) {
+  return !date || (/^\d{4}-\d{2}-\d{2}$/.test(date) && date >= firstVisit && date <= lastVisit);
+}
+
+function readPreferences(values) {
+  const singleFields = ["group", "party", "children", "toddlers", "time", "center", "level", "date"];
+  if (singleFields.some(key => values.getAll(key).length > 1)) return null;
+  const group = values.get("group");
+  if (!Object.hasOwn(groupLabels, group)) return null;
+  const { minimum, maximum } = partyRange(group);
+  const party = count(values.get("party"), NaN);
+  const children = count(values.get("children"), 0);
+  const toddlers = count(values.get("toddlers"), 0);
+  if (![party, children, toddlers].every(Number.isFinite) || party < minimum || party > maximum ||
+      children + toddlers >= party || (group !== "family" && children > 0) ||
+      (group === "toddler" && toddlers === 0) || (!["family", "toddler"].includes(group) && toddlers > 0)) return null;
+  const pickedDays = values.getAll("day");
+  if (!pickedDays.length || pickedDays.some(day => !dayLabels.includes(day))) return null;
+  const time = values.get("time") ?? "";
+  const center = values.get("center") ?? "";
+  const level = values.get("level") ?? "";
+  const date = values.get("date") ?? "";
+  if ((time && !timeBands.some(band => band.id === time)) || (center && !centers.has(center)) ||
+      (level && !Object.hasOwn(levelLabels, level)) || !validVisitDate(date)) return null;
+  return { group, party, children, toddlers, days: normalizeDays(pickedDays), time, center, level, date };
+}
+
+function plannerUrl(page, prefs) {
+  if (!prefs) return page;
+  const query = new URLSearchParams({ group: prefs.group, party: prefs.party });
+  if (prefs.group === "family") query.set("children", prefs.children);
+  if (prefs.group === "family" || prefs.group === "toddler") query.set("toddlers", prefs.toddlers);
+  for (const day of prefs.days) query.append("day", day);
+  for (const key of ["time", "center", "level", "date"]) {
+    if (prefs[key]) query.set(key, prefs[key]);
+  }
+  return page + "?" + query;
+}
+
+function partyDescription({ party, children, toddlers }) {
+  const breakdown = [((children || toddlers) ? "보호자 " : "성인 ") + (party - children - toddlers) + "명"];
+  if (children) breakdown.push("어린이 " + children + "명");
+  if (toddlers) breakdown.push("유아 " + toddlers + "명");
+  return "총 " + party + "명 (" + breakdown.join(", ") + ")";
 }
 
 function setCount(select, minimum, maximum, selected) {
@@ -60,12 +115,11 @@ function setCount(select, minimum, maximum, selected) {
   select.value = String(selected);
 }
 
-function updateParty(changed = "") {
+function updateParty(changed = "", composition = null) {
   const group = form.elements.group.value;
   const isFamily = group === "family";
   const isToddler = group === "toddler";
-  const minimum = group === "adult" ? 1 : 2;
-  const maximum = group === "couple" ? 2 : 6;
+  const { minimum, maximum } = partyRange(group);
   const current = Number(form.elements.party.value);
   const party = Math.min(maximum, Math.max(minimum, current));
   for (const radio of partyInputs) {
@@ -83,18 +137,14 @@ function updateParty(changed = "") {
 
   const reset = changed === "group" || !childCount.options.length;
   const toddlerMinimum = isToddler ? 1 : 0;
-  const toddlersBefore = reset ? toddlerMinimum : Number(toddlerCount.value);
-  const childrenBefore = reset ? 1 : Number(childCount.value);
+  const toddlersBefore = composition?.toddlers ?? (reset ? toddlerMinimum : Number(toddlerCount.value));
+  const childrenBefore = composition?.children ?? (reset ? 1 : Number(childCount.value));
   const children = isFamily ? Math.min(childrenBefore, party - 1) : 0;
   const toddlers = showToddlers ? Math.min(Math.max(toddlerMinimum, toddlersBefore), party - 1 - children) : 0;
   setCount(childCount, 0, party - 1 - toddlers, children);
   setCount(toddlerCount, toddlerMinimum, Math.max(toddlerMinimum, party - 1 - children), toddlers);
 
-  const adultLabel = showToddlers && (children || toddlers) ? "보호자" : "성인";
-  const breakdown = [`${adultLabel} ${party - children - toddlers}명`];
-  if (children) breakdown.push(`어린이 ${children}명`);
-  if (toddlers) breakdown.push(`유아 ${toddlers}명`);
-  partySummary.textContent = `총 ${party}명 (${breakdown.join(", ")})`;
+  partySummary.textContent = partyDescription({ party, children, toddlers });
   partyNote.textContent = group === "couple" ? "부부는 성인 2명으로 검색합니다."
     : toddlers ? "유아가 함께 가면 센터별 연령과 보호자 기준을 안내합니다."
       : children ? "어린이 수영과 보호자 운동의 운영시간을 비교합니다." : "";
@@ -108,8 +158,8 @@ function timeBand(start) {
 function companionFits(course) {
   if (course.center !== TT_DATA.companion.center) return false;
   return course.days.every(day => {
-    const [opens, closes] = TT_DATA.companion.hours[day];
-    return opens <= course.start && course.end <= closes;
+    const hours = TT_DATA.companion.hours[day];
+    return hours && hours[0] <= course.start && course.end <= hours[1];
   });
 }
 
@@ -197,7 +247,7 @@ const issueCopy = {
 
 function nextCourseDate(course, date) {
   const start = new Date(`${date}T00:00:00Z`);
-  for (start.setUTCDate(start.getUTCDate() + 1); start.toISOString().slice(0, 10) <= visitDate.max;
+  for (start.setUTCDate(start.getUTCDate() + 1); start.toISOString().slice(0, 10) <= lastVisit;
     start.setUTCDate(start.getUTCDate() + 1)) {
     const iso = start.toISOString().slice(0, 10);
     if (eligibleOn(course, iso)) return iso;
@@ -224,15 +274,10 @@ function alternativeChange({ course, issues }, prefs) {
   return null;
 }
 
-function applyAlternative(change) {
-  if (change.key === "days") {
-    for (const day of form.querySelectorAll('[name="day"]')) {
-      if (change.value.includes(day.value)) day.checked = true;
-    }
-  } else {
-    form.elements[change.key].value = change.value;
-  }
-  updateResults({ focus: true });
+function alternativeUrl(change, prefs) {
+  const updated = { ...prefs, [change.key]: change.value };
+  if (change.key === "days") updated.days = normalizeDays([...prefs.days, ...change.value]);
+  return plannerUrl("results.html", updated);
 }
 
 function renderNoMatches(entries, prefs) {
@@ -282,10 +327,9 @@ function renderNoMatches(entries, prefs) {
       element("p", "center-label", centers.get(course.center).name),
       element("p", "schedule", `${prettyDays(course.days)} ${course.start} ${displayName(course)}`),
     );
-    const apply = element("button", "primary", change.label);
-    apply.type = "button";
+    const apply = link(change.label, alternativeUrl(change, prefs));
+    apply.className = "primary";
     apply.dataset.alternative = change.key;
-    apply.addEventListener("click", () => applyAlternative(change));
     choice.append(apply);
     alternatives.append(choice);
     if (seen.size === 2) break;
@@ -303,27 +347,28 @@ function renderYoungChildGuidance(prefs) {
     detail.append(link(doc.title, doc.url));
     notice.append(detail);
   }
+  const guideParams = new URLSearchParams({ query: "보호자와 유아 자유수영" });
+  if (prefs.center) guideParams.set("center", prefs.center);
+  const guide = link("유아 동반 이용 안내 더 보기", "guide.html?" + guideParams);
+  guide.className = "secondary";
+  notice.append(guide);
   result.append(notice);
 }
 
-function updateResults({ focus = false } = {}) {
-  const prefs = preferences();
-  result.replaceChildren();
+function renderResults(prefs) {
   result.removeAttribute("aria-busy");
-  dayError.hidden = prefs.days.length > 0;
-  if (dayError.hidden === false) {
-    status.textContent = "";
-    if (focus) form.querySelector("[name=day]").focus();
+  if (editCriteria) {
+    editCriteria.href = plannerUrl("find.html", prefs);
+    if (!prefs) editCriteria.textContent = "조건 선택";
+  }
+  if (!prefs) {
+    status.textContent = "검색 조건을 다시 선택해 주세요.";
+    result.append(element("p", "result-note", "참석 가능한 요일과 동행 인원을 입력하면 맞는 운동 시간을 확인할 수 있어요."));
     return;
   }
-  if (prefs.date && !visitDate.validity.valid) {
-    status.textContent = "시연 자료는 2026년 12월 기준입니다.";
-    result.append(element("p", "result-note", "12월 1일부터 31일 사이의 날짜를 선택해 주세요."));
-    return;
-  }
+  renderCriteria(prefs);
   if (prefs.toddlers) {
     renderYoungChildGuidance(prefs);
-    if (focus) document.querySelector("#matches-title").focus();
     return;
   }
   const evaluated = evaluateCourses(prefs);
@@ -340,39 +385,92 @@ function updateResults({ focus = false } = {}) {
     disclosure.append(element("summary", "", `다른 강좌 ${matches.length - 4}개 보기`), grid);
     result.append(disclosure);
   }
-  if (focus) document.querySelector("#matches-title").focus();
+}
+
+function renderCriteria(prefs) {
+  if (!criteria) return;
+  const list = element("ul", "criteria-list");
+  const specs = [
+    ["동행", groupLabels[prefs.group] + " · " + partyDescription(prefs)],
+    ["요일", prettyDays(prefs.days)],
+    ["시간대", timeBands.find(band => band.id === prefs.time)?.name ?? "모든 시간대"],
+    ["수영 수준", levelLabels[prefs.level] ?? "모든 수준"],
+    ["센터", centers.get(prefs.center)?.name ?? "두 센터 모두"],
+    ["방문일", prefs.date ? Number(prefs.date.slice(5, 7)) + "월 " + Number(prefs.date.slice(8)) + "일" : "미지정"],
+  ];
+  for (const [label, value] of specs) {
+    const row = element("li");
+    row.append(element("strong", "", label + " "), element("span", "", value));
+    list.append(row);
+  }
+  criteria.replaceChildren(list);
+}
+
+function formFields(prefs) {
+  form.elements.group.value = prefs.group;
+  form.elements.party.value = String(prefs.party);
+  updateParty("", prefs);
+  for (const day of form.querySelectorAll('[name="day"]')) day.checked = prefs.days.includes(day.value);
+  for (const key of ["time", "center", "level", "date"]) form.elements[key].value = prefs[key];
+  validateDays();
 }
 
 function loadScenario(kind) {
+  if (!["worker", "family"].includes(kind)) return;
   const family = kind === "family";
-  form.elements.group.value = family ? "family" : "adult";
-  form.elements.party.value = family ? "4" : "1";
-  updateParty("group");
-  if (family) {
-    childCount.value = "2";
-    updateParty("children");
-  }
-  for (const day of form.querySelectorAll('[name="day"]')) day.checked = ["화", "목"].includes(day.value);
-  form.elements.time.value = family ? "afternoon" : "evening";
-  form.elements.level.value = family ? "" : "elementary";
-  form.elements.center.value = family ? "olympic" : "";
-  visitDate.value = "";
-  updateResults({ focus: true });
+  formFields({
+    group: family ? "family" : "adult",
+    party: family ? 4 : 1,
+    children: family ? 2 : 0,
+    toddlers: 0,
+    days: ["화", "목"],
+    time: family ? "afternoon" : "evening",
+    center: family ? "olympic" : "",
+    level: family ? "" : "elementary",
+    date: "",
+  });
 }
 
-function searchGuides() {
-  const docs = TT_GUIDANCE.find(guideQuery.value.trim(), form.elements.center.value);
-  guideResults.replaceChildren();
-  if (!docs.length) {
-    guideResults.append(element("p", "result-note", "확인한 공식 자료에서 관련 안내를 찾지 못했습니다. 센터명과 신청, 휴관, 유아 등 확인할 항목을 함께 입력해 보세요."));
-    return;
+function validateDays(focus = false) {
+  const first = form.querySelector('[name="day"]');
+  const available = Boolean(form.querySelector('[name="day"]:checked'));
+  dayError.hidden = available;
+  if (available) first.removeAttribute("aria-invalid");
+  else {
+    first.setAttribute("aria-invalid", "true");
+    if (focus) first.focus();
   }
-  for (const doc of docs) {
-    const card = element("article", "guide-card");
-    const center = centers.get(doc.center)?.name;
-    if (center) card.append(element("p", "center-label", [center, doc.date].filter(Boolean).join(" / ")));
-    card.append(element("h4", "", doc.title), element("p", "", doc.body), link("공식 원문 보기", doc.url));
-    guideResults.append(card);
+  return available;
+}
+
+function bindFind(params) {
+  visitDate.min = firstVisit;
+  visitDate.max = lastVisit;
+  const restored = readPreferences(params);
+  if (restored) formFields(restored);
+  else {
+    updateParty();
+    loadScenario(params.get("scenario"));
+  }
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    if (!validateDays(true)) return;
+    const prefs = readPreferences(new FormData(form));
+    if (!prefs) return;
+    try {
+      history.replaceState(history.state, "", plannerUrl("find.html", prefs));
+    } catch {
+      // A local file can restrict History API URL changes.
+    }
+    window.location.assign(plannerUrl("results.html", prefs));
+  });
+  form.addEventListener("change", event => {
+    if (event.target.name === "group" && event.target.value === "family") form.elements.time.value = "afternoon";
+    if (["group", "party", "children", "toddlers"].includes(event.target.name)) updateParty(event.target.name);
+    if (event.target.name === "day") validateDays();
+  });
+  for (const example of document.querySelectorAll("[data-scenario]")) {
+    example.addEventListener("click", () => loadScenario(example.dataset.scenario));
   }
 }
 
@@ -423,32 +521,13 @@ function updateChart() {
   document.querySelector("#chart-status").textContent = `${centers.get(selectedCenter).name} 잔여석 지도. 확인한 강좌 ${courses.length}개.`;
 }
 
-form.addEventListener("submit", event => {
-  event.preventDefault();
-  updateResults({ focus: true });
-});
-form.addEventListener("change", event => {
-  if (event.target.name === "group" && event.target.value === "family") {
-    document.querySelector("#time").value = "afternoon";
-  }
-  if (["group", "party", "children", "toddlers"].includes(event.target.name)) updateParty(event.target.name);
-  updateResults();
-});
-for (const example of document.querySelectorAll("[data-scenario]")) {
-  example.addEventListener("click", () => loadScenario(example.dataset.scenario));
+const pageParams = new URLSearchParams(window.location.search);
+if (form) bindFind(pageParams);
+if (result) renderResults(readPreferences(pageParams));
+if (chartCenter && chartAudience) {
+  const requestedCenter = pageParams.get("center");
+  if (centers.has(requestedCenter)) chartCenter.value = requestedCenter;
+  chartCenter.addEventListener("change", updateChart);
+  chartAudience.addEventListener("change", updateChart);
+  updateChart();
 }
-guideForm.addEventListener("submit", event => {
-  event.preventDefault();
-  searchGuides();
-});
-for (const suggestion of document.querySelectorAll("[data-guide-query]")) {
-  suggestion.addEventListener("click", () => {
-    guideQuery.value = suggestion.dataset.guideQuery;
-    searchGuides();
-  });
-}
-chartCenter.addEventListener("change", updateChart);
-chartAudience.addEventListener("change", updateChart);
-updateParty();
-updateResults();
-updateChart();

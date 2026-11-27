@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F4F5F1">
+  <meta name="description" content="틈틈이가 사용한 공공체육시설 운영 자료와 조회 기준을 확인하세요.">
+  <title>데이터 출처 | 틈틈이</title>
+  <link rel="icon" href="mascot.webp" type="image/webp">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="inside.css">
+
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="index.html"><span class="brand-symbol" aria-hidden="true"></span>틈틈이</a>
+      <nav class="site-nav" aria-label="주 메뉴">
+        <a href="index.html">홈</a>
+        <a href="find.html">운동 찾기</a>
+        <a href="guide.html">이용 안내</a>
+        <a href="availability.html">잔여석</a>
+      </nav>
+      <a class="header-utility" href="sources.html" aria-current="page">데이터 출처</a>
+    </div>
+  </header>
+  <main id="main" class="wrap inside-main" tabindex="-1">
+    <header class="page-intro">
+      <h1 id="page-title">데이터 출처</h1>
+      <p>강좌와 시설 운영 정보를 확인한 공식 자료와 적용 범위를 안내합니다.</p>
+    </header>
+    <div class="inside-columns sources-layout">
+      <section class="panel sources-panel" aria-labelledby="source-list">
+        <h2 id="source-list">공공데이터와 기관 안내</h2>
+        <ul class="sources-list">
+          <li><strong>수영 강좌와 잔여석</strong><p>공개 CSV의 수영 프로그램을 두 센터의 공식 등록현황과 대조했습니다.</p>
+            <ul>
+              <li><a href="https://www.data.go.kr/data/15147992/fileData.do">스포츠센터 강좌 정보 CSV</a></li>
+              <li><a href="https://www.ksponco.or.kr/spm/reservationStatus/waitList.do?scId=6&amp;itemCode=040">올림픽수영장 등록현황</a></li>
+              <li><a href="https://www.ksponco.or.kr/spm/reservationStatus/waitList.do?scId=5&amp;itemCode=040">일산올림픽스포츠센터 등록현황</a></li>
+            </ul>
+          </li>
+          <li><strong>강습 요일과 시설 이용 조건</strong><p>센터별 프로그램 안내로 필수 수업 요일을 확인했습니다. 보호자 '일일 헬스'는 해당 시설의 운영시간이 겹치는 경우 표시합니다.</p>
+            <ul>
+              <li><a href="https://www.ksponco.or.kr/menu.es?mid=a50204000000">올림픽수영장 일일입장 및 헬스</a></li>
+              <li><a href="https://www.ksponco.or.kr/menu.es?mid=a50203000000">올림픽수영장 요금 및 시간 안내</a></li>
+              <li><a href="https://www.ksponco.or.kr/sports/courses/141?mid=a90101000000">일산올림픽스포츠센터 수영 프로그램</a></li>
+            </ul>
+          </li>
+          <li><strong>12월 휴관과 공휴일 운영</strong><p>올림픽수영장은 12월 운영 공지, 일산은 정기휴관과 공휴일 강습 기준을 적용했습니다. 일산 성탄절의 종목별 예외와 일일입장 운영 여부는 센터 확인이 필요합니다.</p>
+            <ul>
+              <li><a href="https://www.ksponco.or.kr/sports/board.es?act=view&amp;bid=0001&amp;list_no=85955&amp;mid=a50301000000&amp;nPage=3">올림픽수영장 12월 휴관 및 공휴일 운영 공지</a></li>
+              <li><a href="https://www.ksponco.or.kr/sports/menu.es?mid=a90204000000">일산 일일입장 안내 및 정기휴관</a></li>
+              <li><a href="https://www.ksponco.or.kr/sports/menu.es?mid=a90601000000">일산 회원이용약관 제20조</a></li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      <aside class="info-panel" aria-labelledby="source-limit">
+        <h2 id="source-limit">자료 확인 기준</h2>
+        <dl>
+          <dt>잔여석</dt>
+          <dd>2026년 11월 25일에 확인한 12월 수영 강좌 21건을 사용합니다. 등록 가능 인원은 바뀔 수 있습니다.</dd>
+          <dt>시설 이용</dt>
+          <dd>운영시간이 겹치는 경우에도 이용 자격과 당일 입장 여부는 센터에서 확인해야 합니다.</dd>
+          <dt>시연 이미지</dt>
+          <dd>홈 수영장 이미지는 AI로 제작한 연출 이미지입니다. 두루미 마스코트도 틈틈이 시연을 위해 이미지 생성 도구로 제작했습니다.</dd>
+        </dl>
+        <a href="guide.html">공식 이용 안내 찾기</a>
+      </aside>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <a class="brand" href="index.html"><span class="brand-symbol" aria-hidden="true"></span>틈틈이</a>
+      <p>공공체육시설 수영 강좌 시연</p>
+      <a href="sources.html" aria-current="page">데이터 출처와 확인 기준</a>
+    </div>
+  </footer>
+</body>
+</html>

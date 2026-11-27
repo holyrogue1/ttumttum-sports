@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F4F5F1">
+  <meta name="description" content="올림픽수영장과 일산올림픽스포츠센터의 등록, 휴관, 보호자 동반 기준을 확인하세요.">
+  <title>공식 이용 안내 | 틈틈이</title>
+  <link rel="icon" href="mascot.webp" type="image/webp">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="inside.css">
+  <script src="data.js" defer></script>
+  <script src="guidance.js" defer></script>
+  <script src="guide.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="index.html"><span class="brand-symbol" aria-hidden="true"></span>틈틈이</a>
+      <nav class="site-nav" aria-label="주 메뉴">
+        <a href="index.html">홈</a>
+        <a href="find.html">운동 찾기</a>
+        <a href="guide.html" aria-current="page">이용 안내</a>
+        <a href="availability.html">잔여석</a>
+      </nav>
+      <a class="header-utility" href="sources.html">데이터 출처</a>
+    </div>
+  </header>
+  <main id="main" class="wrap inside-main" tabindex="-1">
+    <header class="page-intro">
+      <h1 id="guide-title">공식 이용 안내</h1>
+      <p>등록 절차, 휴관일, 보호자 동반 기준을 센터 공식 자료에서 찾아보세요.</p>
+    </header>
+    <div class="inside-columns guide-layout">
+      <section id="guidance" aria-label="이용 안내 검색">
+        <div class="panel">
+          <form id="guide-form">
+            <label class="select-field guide-center-field">스포츠센터
+              <select id="guide-center" name="center"><option value="">두 센터 모두</option><option value="olympic">올림픽수영장</option><option value="ilsan">일산올림픽스포츠센터</option></select>
+            </label>
+            <label class="select-field" for="guide-query">찾고 싶은 이용 안내
+              <input type="search" id="guide-query" name="query" maxlength="160" required placeholder="예: 일산 초등생 수영 등록">
+            </label>
+            <button class="primary" type="submit">안내 검색</button>
+            <div class="guide-suggestions" role="group" aria-label="추천 검색어">
+              <button class="secondary" type="button" data-guide-query="일산 초등생 수영 등록" data-guide-center="ilsan">일산 초등생 수영 등록</button>
+              <button class="secondary" type="button" data-guide-query="올림픽수영장 12월 휴관" data-guide-center="olympic">올림픽수영장 12월 휴관</button>
+              <button class="secondary" type="button" data-guide-query="보호자와 유아 자유수영">보호자와 유아 자유수영</button>
+            </div>
+          </form>
+        </div>
+        <div class="guide-results" id="guide-results" aria-live="polite"></div>
+        <noscript><p class="result-note">안내 검색은 브라우저에서 JavaScript를 켜면 사용할 수 있습니다.</p></noscript>
+      </section>
+      <aside class="info-panel" aria-labelledby="official-contacts">
+        <h2 id="official-contacts">센터 공식 홈페이지</h2>
+        <p>당일 운영이나 개별 입장 조건은 센터 안내를 확인하세요.</p>
+        <ul>
+          <li><a href="https://www.ksponco.or.kr/sports/olparkswim">올림픽수영장</a></li>
+          <li><a href="https://www.ksponco.or.kr/sports/ilsansports">일산올림픽스포츠센터</a></li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <a class="brand" href="index.html"><span class="brand-symbol" aria-hidden="true"></span>틈틈이</a>
+      <p>공공체육시설 수영 강좌 시연</p>
+      <a href="sources.html">데이터 출처와 확인 기준</a>
+    </div>
+  </footer>
+</body>
+</html>
