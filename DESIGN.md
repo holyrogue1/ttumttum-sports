@@ -34,7 +34,9 @@ Spoqa Han Sans Neo 400 and 700 with Korean system fallback. Hero 60/46/38, secti
 
 ## Components
 
-Split portrait hero, readable one-sentence lead, one CTA. A real form uses radios for visit type, weekday checkboxes for class attendance, and native time and center selects. Results display center, actual time, all required days, seats and official link. The family cards identify open gym hours as an overlap. Analytics cells carry percentage and raw numerators, with a clear empty state. Status text accompanies any color. Mobile chart retains all seven weekdays.
+Split portrait hero, readable one-sentence lead, one CTA. The first form row uses radio groups for companion type and total attendance. It shows up to six attendance options, with the companion type setting which options are available. A family composition row uses native child-count selects and a text summary. On mobile, these groups stack above weekday, time and center controls. Results display center, actual time, all required days, seat needs and official links. Family cards identify an overlap between gym hours and child swimming. Preschool visits show official eligibility information in the result area. Analytics cells carry percentage and raw numerators, with a clear empty state. Status text accompanies any color. Mobile chart retains all seven weekdays.
+
+Two example searches open the planner with real conditions filled in. Level and optional first visit date retain the existing select and input treatment. When a search returns zero matches, show the blocking condition, then only alternatives that satisfy all the other selected conditions. Include source links in cards and results. A separate official guide search uses matching fonts, borders and controls. The filter rows wrap at 1000px. Mobile center selection has its own full-width row to show the long center name.
 
 ## Motion
 

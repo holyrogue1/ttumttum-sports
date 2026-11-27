@@ -4,11 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#F7F8F2">
-  <meta name="description" content="혼자, 둘이, 가족과 갈 수 있는 공공체육시설의 운동 시간과 남은 자리를 확인하는 틈틈이 시연 웹">
+  <meta name="description" content="동행 유형과 인원에 맞춰 공공체육시설의 운동 시간과 잔여석을 확인하는 틈틈이 시연 웹">
   <title>틈틈이 | 함께 운동하는 시간</title>
   <link rel="icon" href="mascot.webp" type="image/webp">
   <link rel="stylesheet" href="styles.css">
   <script src="data.js" defer></script>
+  <script src="guidance.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -16,14 +17,14 @@
   <header class="header">
     <div class="wrap header-inner">
       <a class="wordmark" href="#top"><span class="mark" aria-hidden="true"></span>틈틈이</a>
-      <nav aria-label="주 메뉴"><a href="#find">시간 찾기</a><a href="#seats">잔여석 지도</a><a href="#data">데이터 출처</a></nav>
+      <nav aria-label="주 메뉴"><a href="#find">시간 찾기</a><a href="#guidance">이용 안내</a><a href="#seats">잔여석 지도</a><a href="#data">데이터 출처</a></nav>
     </div>
   </header>
   <main id="top">
     <section class="wrap hero" aria-labelledby="title">
       <div class="hero-copy">
         <h1 id="title">함께 운동할<br>시간을 찾아요</h1>
-        <p>혼자, 둘이, 아이와 함께.<br>공공체육센터에서 갈 수 있는 시간과 남은 자리를 찾아보세요.</p>
+        <p>혼자 가는 날도, 가족과 가는 날도.<br>공공체육센터의 운동 시간과 잔여석을 확인하세요.</p>
         <a class="primary" href="#find">운동 시간 찾기 <span aria-hidden="true">↗</span></a>
       </div>
       <div class="hero-art">
@@ -33,15 +34,43 @@
     <div class="wrap content">
       <section id="find" aria-labelledby="find-title">
         <div class="section-heading"><h2 id="find-title">운동 시간 찾기</h2><p>참석할 수 있는 모든 요일을 고르세요.</p></div>
+        <div class="scenario-actions" role="group" aria-label="추천 조건으로 시작하기">
+          <button class="secondary" type="button" data-scenario="worker">퇴근 후 초급 수영</button>
+          <button class="secondary" type="button" data-scenario="family">아이 수영과 보호자 운동</button>
+        </div>
         <form id="filters" class="panel">
-          <fieldset class="field">
-            <legend>누구와 가나요?</legend>
-            <div class="segments">
-              <label><input type="radio" name="mode" value="solo"><span>혼자</span></label>
-              <label><input type="radio" name="mode" value="pair" checked><span>둘이</span></label>
-              <label><input type="radio" name="mode" value="family"><span>아이와 보호자</span></label>
+          <div class="visit-party">
+            <fieldset class="field">
+              <legend>동행 유형</legend>
+              <div class="segments group-options">
+                <label><input type="radio" name="group" value="adult" checked><span>성인</span></label>
+                <label><input type="radio" name="group" value="couple"><span>부부</span></label>
+                <label><input type="radio" name="group" value="family"><span>가족</span></label>
+                <label><input type="radio" name="group" value="toddler"><span>보호자·유아</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="field" id="party-size" aria-describedby="party-note">
+              <legend>총 인원</legend>
+              <div class="segments party-options">
+                <label><input type="radio" name="party" value="1" checked><span>1명</span></label>
+                <label><input type="radio" name="party" value="2"><span>2명</span></label>
+                <label><input type="radio" name="party" value="3"><span>3명</span></label>
+                <label><input type="radio" name="party" value="4"><span>4명</span></label>
+                <label><input type="radio" name="party" value="5"><span>5명</span></label>
+                <label><input type="radio" name="party" value="6"><span>6명</span></label>
+              </div>
+            </fieldset>
+            <div id="party-composition" class="party-composition" hidden>
+              <label class="select-field" id="children-field">어린이 인원
+                <select id="children" name="children"><option value="0">0명</option></select>
+              </label>
+              <label class="select-field" id="toddlers-field">유아 인원
+                <select id="toddlers" name="toddlers"><option value="0">0명</option></select>
+              </label>
             </div>
-          </fieldset>
+            <p id="party-summary" class="party-summary" role="status"></p>
+            <p id="party-note" class="party-note"></p>
+          </div>
           <fieldset class="field weekdays" aria-describedby="day-error">
             <legend>가능한 요일</legend>
             <div class="segments day-options">
@@ -57,11 +86,19 @@
           <label class="select-field">시작 시간대
             <select id="time" name="time">
               <option value="">모든 시간대</option><option value="morning" selected>오전 (12시 전)</option>
-              <option value="afternoon">오후 (12시~18시 전)</option><option value="evening">저녁 (18시 이후)</option>
+              <option value="afternoon">오후 (12~18시)</option><option value="evening">저녁 (18시부터)</option>
             </select>
           </label>
-          <label class="select-field">스포츠센터
+          <label class="select-field">수영 수준
+            <select id="level" name="level">
+              <option value="">모든 수준</option><option value="beginner">입문(신기초)</option><option value="basic">기초</option><option value="elementary">초급</option><option value="intermediate">중급</option><option value="advanced">상급·고급</option><option value="training">연수·교정</option>
+            </select>
+          </label>
+          <label class="select-field center-field">스포츠센터
             <select id="center" name="center"><option value="">두 센터 모두</option><option value="olympic">올림픽수영장</option><option value="ilsan">일산올림픽스포츠센터</option></select>
+          </label>
+          <label class="select-field date-field">방문 날짜 (12월)
+            <input type="date" id="visit-date" name="date" min="2026-12-01" max="2026-12-31">
           </label>
           <button class="primary" type="submit">가능한 시간 보기</button>
           <p class="field-error" id="day-error" role="alert" hidden>참석 가능한 요일을 하나 이상 선택해 주세요.</p>
@@ -72,6 +109,26 @@
           <p class="data-date">2026년 11월 25일 조회 · 12월 수강 기준</p>
         </div>
         <div class="result-grid" id="results" aria-busy="true"></div>
+      </section>
+      <section id="guidance" aria-labelledby="guide-title">
+        <div class="section-heading">
+          <h2 id="guide-title">공식 이용 안내 찾기</h2>
+          <p>등록 절차, 휴관일, 보호자 동반 기준을 확인하세요.</p>
+        </div>
+        <div class="panel">
+          <form id="guide-form">
+            <label class="select-field" for="guide-query">찾고 싶은 이용 안내
+              <input type="search" id="guide-query" name="query" maxlength="160" required placeholder="예: 일산 초등생 수영 등록">
+            </label>
+            <button class="primary" type="submit">안내 검색</button>
+            <div class="guide-suggestions" role="group" aria-label="추천 검색어">
+              <button class="secondary" type="button" data-guide-query="일산 초등생 수영 등록">일산 초등생 수영 등록</button>
+              <button class="secondary" type="button" data-guide-query="올림픽수영장 12월 휴관">올림픽수영장 12월 휴관</button>
+              <button class="secondary" type="button" data-guide-query="보호자와 유아 자유수영">보호자와 유아 자유수영</button>
+            </div>
+          </form>
+          <div class="guide-results" id="guide-results" aria-live="polite"></div>
+        </div>
       </section>
       <section id="seats" aria-labelledby="seat-title">
         <div class="section-heading">
@@ -96,6 +153,8 @@
           <a href="https://www.ksponco.or.kr/spm/reservationStatus/waitList.do?scId=6&amp;itemCode=040">올림픽수영장 등록현황</a>
           <a href="https://www.ksponco.or.kr/spm/reservationStatus/waitList.do?scId=5&amp;itemCode=040">일산올림픽스포츠센터 등록현황</a>
           <a href="https://www.ksponco.or.kr/menu.es?mid=a50204000000">올림픽수영장 일일 헬스</a>
+          <a href="https://www.ksponco.or.kr/menu.es?mid=a50203000000">올림픽수영장 자유수영 안내</a>
+          <a href="https://www.ksponco.or.kr/sports/courses/141?mid=a90101000000">일산올림픽스포츠센터 자유수영 안내</a>
         </div>
       </section>
     </div>
